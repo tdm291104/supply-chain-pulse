@@ -126,9 +126,8 @@ def seed(db: Database, data_dir: str) -> None:
 
 
 if __name__ == "__main__":
-    import os as _os
-    db_path = _os.environ.get("DUCKDB_PATH", "./data/supply_chain.duckdb")
+    db_path = os.environ.get("DUCKDB_PATH", "./data/supply_chain.duckdb")
     database = Database(db_path)
-    seed(database, data_dir=_os.path.dirname(__file__))
+    seed(database, data_dir=os.path.dirname(__file__))
     database.close()
     print(f"Seeded {db_path}")
