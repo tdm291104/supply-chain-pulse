@@ -5,6 +5,7 @@ Run as a script to (re)write the CSVs under data/. The generation is
 seeded so the perfect-storm numbers are stable across runs.
 """
 import csv
+import hashlib
 import math
 import os
 import random
@@ -93,7 +94,7 @@ def generate_inventory() -> list[dict]:
             "safety_stock": safety_stock,
             "reorder_point": reorder,
             "lead_time_days": lead_time,
-            "unit_cost": round(4.0 + (hash(sku) % 360) / 10, 2),
+            "unit_cost": round(4.0 + (int(hashlib.md5(sku.encode()).hexdigest(), 16) % 360) / 10, 2),
         })
     return rows
 
