@@ -1,7 +1,7 @@
-"""Fivetran webhook handler: verifies HMAC signature, then schedules
-post-sync analysis as a background task so the response is immediate.
+"""Fivetran webhook handler: verifies HMAC signature, then runs post-sync
+analysis before responding so the full pipeline (webhook -> analysis ->
+alert) completes within a single request.
 """
-import asyncio
 import hashlib
 import hmac
 import json
@@ -32,7 +32,7 @@ async def fivetran_webhook(request: Request):
     status = data.get("status")
 
     if event_type == "sync_end" and status == "successful" and connection_id:
-        asyncio.create_task(deps.analyzer.run_post_sync_analysis(connection_id))
+        await deps.analyzer.run_post_sync_analysis(connection_id)
 
     return {"status": "received"}
 
