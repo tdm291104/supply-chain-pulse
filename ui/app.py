@@ -3,6 +3,7 @@
 Reads share the core modules directly (via ui.state); writes go through
 the FastAPI routes so approval/webhook code paths stay single-sourced.
 """
+import html
 import json
 
 import httpx
@@ -33,7 +34,7 @@ def render_alerts_tab():
         with st.container(border=True):
             st.markdown(
                 f'<div style="border-left: 6px solid {color}; padding-left: 12px;">'
-                f'<h4>{icons} {alert["severity"]} RISK — {", ".join(alert["affected_skus"])}</h4>'
+                f'<h4>{icons} {alert["severity"]} RISK — {html.escape(", ".join(alert["affected_skus"]))}</h4>'
                 f"</div>",
                 unsafe_allow_html=True,
             )
