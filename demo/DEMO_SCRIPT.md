@@ -22,7 +22,7 @@ these dots — no human had to notice the pattern."
 
 ## 01:30–02:10 — Human in the loop
 Select "Switch to backup supplier (Vertex Fabrics)". Click Approve.
-[Live log shows: `create_connection` → `modify_connection`, both attributed to "agent"]
+[Live log shows: `create_connection` attributed to "agent"]
 "The agent just reconfigured the pipeline through Fivetran's write APIs in real
 time — but only after a human approved it. That approval is enforced in the
 backend, not just hidden behind a disabled button."
