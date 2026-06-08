@@ -52,6 +52,23 @@ flowchart LR
 | `create_account_webhook` | write | Register the sync-completion trigger |
 | `run_transformation` | write | Refresh aggregated analytics tables |
 
+### Mock vs. real MCP backend
+
+`fivetran_mcp/client.py` is a thin client that can run against two backends,
+selected by the `USE_MOCK_MCP` env var:
+
+- **`USE_MOCK_MCP=true` (default)** — routes every call through an in-process
+  mock backend driven by JSON fixtures in `data/`. This is what the demo runs
+  on: it's deterministic, requires no live credentials, and reproduces the
+  "perfect storm" scenario exactly every time.
+- **`USE_MOCK_MCP=false`** — intended to route through a real `fivetran-mcp`
+  server via the `mcp` SDK. That server isn't part of this repo and has no
+  documented connection endpoint yet, so this path currently raises
+  `NotImplementedError` with a message pointing back at the mock flag. Wiring
+  up a real MCP server is future work, not required for the demo — the agent
+  code is already written to call the client identically either way, so only
+  this module would need to change.
+
 ## Quick start (< 10 minutes)
 
 ```bash
