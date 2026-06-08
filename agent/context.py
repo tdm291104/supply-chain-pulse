@@ -58,5 +58,5 @@ def get_news_context() -> dict:
                 for a in articles
             ]
         }
-    except requests.RequestException:
+    except (requests.RequestException, KeyError, TypeError, IndexError):
         return _load_fixture("news_context")
