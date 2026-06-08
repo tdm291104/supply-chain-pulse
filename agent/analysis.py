@@ -54,14 +54,15 @@ class SupplyChainAnalyzer:
     def _save_alert(self, report: RiskReport) -> None:
         alert_id = f"alert_{uuid.uuid4().hex[:10]}"
         recommended = "; ".join(a["action"] for a in report.recommended_actions) or "No action recommended"
-        skus_literal = "[" + ", ".join(f"'{s}'" for s in report.affected_skus) + "]"
+        skus_literal = "[" + ", ".join(f"'{s.replace("'", "''")}'" for s in report.affected_skus) + "]"
+        risk_sources_literal = ",".join(s.replace("'", "''") for s in report.risk_sources)
         self._db.execute(f"""
             INSERT INTO risk_alerts
                 (alert_id, created_at, severity, affected_skus, risk_type,
                  description, recommended_action, status, resolved_at, approved_by)
             VALUES (
-                '{alert_id}', current_timestamp, '{report.severity}', {skus_literal},
-                '{",".join(report.risk_sources)}', '{report.summary.replace("'", "''")}',
+                '{alert_id}', current_timestamp, '{report.severity.replace("'", "''")}', {skus_literal},
+                '{risk_sources_literal}', '{report.summary.replace("'", "''")}',
                 '{recommended.replace("'", "''")}', 'OPEN', NULL, NULL
             )
         """)
