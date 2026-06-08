@@ -3,6 +3,7 @@ to reason over it. Gemini does the reasoning — this module's job is to
 gather the right context, call the model, and persist the result.
 """
 import json
+import sys
 import uuid
 from datetime import datetime, timezone
 
@@ -28,12 +29,19 @@ class SupplyChainAnalyzer:
         news = get_news_context()
 
         prompt = self._build_prompt(risk_summary, reliability, forecast, weather, news)
-        raw = self._gemini.generate_json(
-            system_instruction=SYSTEM_PROMPT,
-            prompt=prompt,
-            response_schema=RISK_REPORT_SCHEMA,
-        )
-        report = RiskReport.from_dict(raw)
+        try:
+            raw = self._gemini.generate_json(
+                system_instruction=SYSTEM_PROMPT,
+                prompt=prompt,
+                response_schema=RISK_REPORT_SCHEMA,
+            )
+            report = RiskReport.from_dict(raw)
+        except json.JSONDecodeError as exc:
+            print(f"Gemini returned unparseable JSON, skipping alert: {exc}", file=sys.stderr)
+            return None
+        except Exception as exc:
+            print(f"Gemini analysis failed, skipping alert: {exc}", file=sys.stderr)
+            return None
 
         if report.severity != "LOW":
             self._save_alert(report)
