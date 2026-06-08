@@ -1,0 +1,8 @@
+{
+  "connections": [
+    {"id": "conn_orders_001", "name": "orders_sheet", "service": "google_sheets", "status": "connected", "frequency_minutes": 360},
+    {"id": "conn_inventory_001", "name": "inventory_csv", "service": "file", "status": "connected", "frequency_minutes": 360},
+    {"id": "conn_weather_001", "name": "weather_api", "service": "rest_api", "status": "connected", "frequency_minutes": 60},
+    {"id": "conn_news_001", "name": "news_feed", "service": "rest_api", "status": "connected", "frequency_minutes": 120}
+  ]
+}

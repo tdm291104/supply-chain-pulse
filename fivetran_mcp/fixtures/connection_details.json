@@ -1,0 +1,6 @@
+{
+  "conn_orders_001": {"id": "conn_orders_001", "name": "orders_sheet", "status": "connected", "last_sync": "2026-06-08T08:00:00Z", "row_count": 50, "schema": "supply_chain.orders"},
+  "conn_inventory_001": {"id": "conn_inventory_001", "name": "inventory_csv", "status": "connected", "last_sync": "2026-06-08T08:05:00Z", "row_count": 20, "schema": "supply_chain.inventory"},
+  "conn_weather_001": {"id": "conn_weather_001", "name": "weather_api", "status": "connected", "last_sync": "2026-06-08T09:00:00Z", "row_count": 14, "schema": "supply_chain.weather"},
+  "conn_news_001": {"id": "conn_news_001", "name": "news_feed", "status": "connected", "last_sync": "2026-06-08T09:30:00Z", "row_count": 32, "schema": "supply_chain.news"}
+}

@@ -1,0 +1,5 @@
+{
+  "status": "success",
+  "job_id_prefix": "job_",
+  "message": "Sync triggered successfully"
+}
