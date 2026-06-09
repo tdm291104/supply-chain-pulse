@@ -72,7 +72,7 @@ selected by the `USE_MOCK_MCP` env var:
 ## Quick start (< 10 minutes)
 
 ```bash
-git clone <repo-url> && cd supply-chain-pulse
+git clone git@github.com:tdm291104/supply-chain-pulse.git && cd supply-chain-pulse
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env   # fill in GEMINI_API_KEY at minimum; USE_MOCK_MCP=true needs nothing else

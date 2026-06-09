@@ -13,7 +13,7 @@ class _FakeModel:
     def __init__(self, *args, **kwargs):
         self.last_prompt = None
 
-    def generate_content(self, prompt, generation_config=None):
+    def generate_content(self, prompt, generation_config=None, **kwargs):
         self.last_prompt = prompt
         return _FakeResponse(json.dumps({
             "severity": "HIGH",
@@ -42,7 +42,7 @@ def test_generate_json_parses_model_response(monkeypatch):
 
 def test_generate_text_returns_plain_string(monkeypatch):
     class _PlainModel(_FakeModel):
-        def generate_content(self, prompt, generation_config=None):
+        def generate_content(self, prompt, generation_config=None, **kwargs):
             return _FakeResponse("Plain English answer.")
 
     monkeypatch.setattr("agent.gemini_client._build_model", lambda model_name, system_instruction: _PlainModel())

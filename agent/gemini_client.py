@@ -26,10 +26,14 @@ class GeminiClient:
                 "response_mime_type": "application/json",
                 "response_schema": response_schema,
             },
+            request_options={"timeout": 30, "retry": None},
         )
         return json.loads(response.text)
 
     def generate_text(self, *, system_instruction: str, prompt: str) -> str:
         model = _build_model(self._model_name, system_instruction)
-        response = model.generate_content(prompt)
+        response = model.generate_content(
+            prompt,
+            request_options={"timeout": 30, "retry": None},
+        )
         return response.text

@@ -90,15 +90,15 @@ async def record_demo():
         # ------------------------------------------------------------------
         print("Opening Supply Chain Pulse UI...")
         await page.goto("http://localhost:8501", wait_until="networkidle")
-        await asyncio.sleep(5)
+        await asyncio.sleep(4)
 
         # ------------------------------------------------------------------
-        # 00:25–00:50  Pipeline tab
-        # Show connections and click "Sync now" to produce tool call log entry
+        # 00:25–00:50  Pipeline tab  (navigate there first — app defaults to
+        # Alerts, so explicitly switch to Pipeline as the opening view)
         # ------------------------------------------------------------------
         print("→ Pipeline tab")
         await page.get_by_role("tab", name="Pipeline").click()
-        await asyncio.sleep(3)
+        await asyncio.sleep(4)
 
         sync_btns = page.get_by_role("button", name="Sync now")
         if await sync_btns.count() > 0:
@@ -150,18 +150,17 @@ async def record_demo():
         approved = False
         if await approve_btn.count() > 0 and not await approve_btn.first.is_disabled():
             await approve_btn.first.click()
-            print("  Approved — showing tool call log...")
-            await asyncio.sleep(7)
+            print("  Approved — waiting for success message + tool call log...")
+            # ui/app.py sleeps 4s before st.rerun(), giving us a window to capture
+            await asyncio.sleep(2)
+            # Scroll down to show the tool call JSON log
+            await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            await asyncio.sleep(4)
+            await page.evaluate("window.scrollTo(0, 0)")
+            await asyncio.sleep(2)
             approved = True
         else:
             print("  WARNING: Approve button not found or still disabled")
-
-        if approved:
-            # Scroll to show the tool call JSON log
-            await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-            await asyncio.sleep(3)
-            await page.evaluate("window.scrollTo(0, 0)")
-            await asyncio.sleep(1)
 
         # ------------------------------------------------------------------
         # 02:10–02:40  Chat tab
@@ -175,17 +174,17 @@ async def record_demo():
         await chat_input.fill("What's my highest-risk SKU?")
         await page.keyboard.press("Enter")
         print("  Q1: 'What's my highest-risk SKU?'")
-        await asyncio.sleep(15)
+        await asyncio.sleep(8)  # fallback response is instant now (no Gemini retry)
 
         await chat_input.fill("Compare SUP-001 vs SUP-002 reliability")
         await page.keyboard.press("Enter")
         print("  Q2: 'Compare SUP-001 vs SUP-002 reliability'")
-        await asyncio.sleep(15)
+        await asyncio.sleep(8)
 
         # ------------------------------------------------------------------
         # 02:40–03:00  Hold final state
         # ------------------------------------------------------------------
-        await asyncio.sleep(5)
+        await asyncio.sleep(6)
 
         print("Recording complete — closing browser")
         video_path = await page.video.path()
