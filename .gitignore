@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 .env
 data/*.duckdb
+data/*.wal
 logs/*.jsonl
 .pytest_cache/
 .venv/
