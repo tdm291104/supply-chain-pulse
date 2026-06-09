@@ -18,7 +18,7 @@ LOG_PATH = "logs/tool_calls.jsonl"
 
 @st.cache_resource
 def get_db() -> Database:
-    return Database(os.environ.get("DUCKDB_PATH", "./data/supply_chain.duckdb"))
+    return Database(os.environ.get("DUCKDB_PATH", "./data/supply_chain.duckdb"), read_only=True)
 
 
 @st.cache_resource

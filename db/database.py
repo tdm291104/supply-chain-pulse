@@ -10,8 +10,8 @@ class Database:
     and query execution, not the SQL the rest of the app writes.
     """
 
-    def __init__(self, path: str):
-        self._conn = duckdb.connect(path)
+    def __init__(self, path: str, read_only: bool = False):
+        self._conn = duckdb.connect(path, read_only=read_only)
 
     def query(self, sql: str) -> pd.DataFrame:
         return self._conn.execute(sql).fetchdf()
