@@ -98,13 +98,13 @@ async def record_demo():
         # ------------------------------------------------------------------
         print("→ Pipeline tab")
         await page.get_by_role("tab", name="Pipeline").click()
-        await asyncio.sleep(4)
+        await asyncio.sleep(8)  # real MCP call takes ~3-5s to spawn subprocess
 
         sync_btns = page.get_by_role("button", name="Sync now")
         if await sync_btns.count() > 0:
             await sync_btns.first.click()
-            print("  Clicked 'Sync now' — sync_connection appears in log")
-            await asyncio.sleep(3)
+            print("  Clicked 'Sync now' — real Fivetran sync triggered")
+            await asyncio.sleep(6)  # wait for real API response
 
         # ------------------------------------------------------------------
         # 00:50–01:30  Alerts tab
@@ -230,7 +230,8 @@ def main():
     # 1. Reset DB + seed demo alert (no Gemini API needed)
     seed_demo_alert()
 
-    env = {**os.environ, "PYTHONPATH": str(ROOT)}
+    # USE_MOCK_MCP=false so Pipeline tab shows real Fivetran connections
+    env = {**os.environ, "PYTHONPATH": str(ROOT), "USE_MOCK_MCP": "false"}
 
     # 2. Start API
     print("Starting API server...")
