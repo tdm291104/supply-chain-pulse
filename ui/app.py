@@ -1,24 +1,30 @@
 """Streamlit dashboard — Alerts / Pipeline / Chat tabs.
 
-Reads share the core modules directly (via ui.state); writes go through
-the FastAPI routes so approval/webhook code paths stay single-sourced.
+All data reads go through the FastAPI REST API so the UI process never
+opens the DuckDB file directly (DuckDB allows only one read-write
+connection at a time across OS processes). Writes (approve actions,
+webhook triggers) also go through the API.
 """
 import html
 import json
 
 import httpx
+import pandas as pd
 import streamlit as st
 
 from ui.components.alert_card import format_alert_summary, severity_color, source_icon
-from ui.state import API_BASE_URL, LOG_PATH, get_db, get_mcp
+from ui.state import API_BASE_URL, LOG_PATH, get_mcp
 
 st.set_page_config(page_title="Supply Chain Pulse", layout="wide")
 
-db = get_db()
 
-
-def _open_alerts():
-    return db.query("SELECT * FROM risk_alerts WHERE status = 'OPEN' ORDER BY created_at DESC")
+def _open_alerts() -> list[dict]:
+    try:
+        resp = httpx.get(f"{API_BASE_URL}/alerts", timeout=5)
+        resp.raise_for_status()
+        return resp.json()
+    except Exception:
+        return []
 
 
 def render_alerts_tab():
@@ -27,7 +33,7 @@ def render_alerts_tab():
         st.info("No open alerts. The agent will create one after the next risky sync.")
         return
 
-    for _, alert in alerts.iterrows():
+    for alert in alerts:
         color = severity_color(alert["severity"])
         sources = [s for s in (alert["risk_type"] or "").split(",") if s]
         icons = " ".join(source_icon(s) for s in sources)
@@ -47,7 +53,12 @@ def render_alerts_tab():
 
             with st.expander("Show underlying data and query"):
                 st.code("SELECT * FROM v_supply_risk_summary ORDER BY risk_score DESC LIMIT 5", language="sql")
-                st.dataframe(db.query("SELECT * FROM v_supply_risk_summary ORDER BY risk_score DESC LIMIT 5"))
+                try:
+                    r = httpx.get(f"{API_BASE_URL}/risk-summary", timeout=5)
+                    r.raise_for_status()
+                    st.dataframe(pd.DataFrame(r.json()))
+                except Exception as e:
+                    st.warning(f"Could not load risk summary: {e}")
 
             action_choice = st.radio(
                 "Choose a recommended action",
@@ -94,8 +105,6 @@ def render_pipeline_tab():
 
 
 def render_chat_tab():
-    from ui.state import get_chat_router
-
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
@@ -114,7 +123,13 @@ def render_chat_tab():
     question = st.chat_input("Ask about your supply chain...")
     if question:
         st.session_state.chat_history.append(("user", question, []))
-        answer, views = get_chat_router().answer(question)
+        try:
+            resp = httpx.post(f"{API_BASE_URL}/chat", json={"question": question}, timeout=30)
+            resp.raise_for_status()
+            data = resp.json()
+            answer, views = data["answer"], data["views"]
+        except Exception as e:
+            answer, views = f"Chat unavailable: {e}", []
         st.session_state.chat_history.append(("assistant", answer, views))
         st.rerun()
 
