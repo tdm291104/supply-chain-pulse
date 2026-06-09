@@ -43,10 +43,24 @@ class ChatRouter:
                     f"Relevant data from {view_name}:\n{rows.to_json(orient='records')}\n\n"
                     "Answer in plain English, citing specific numbers from the data."
                 )
-                answer = self._gemini.generate_text(
-                    system_instruction="You are Supply Chain Pulse Agent's conversational assistant. Always respond in English.",
-                    prompt=prompt,
-                )
+                try:
+                    answer = self._gemini.generate_text(
+                        system_instruction="You are Supply Chain Pulse Agent's conversational assistant. Always respond in English.",
+                        prompt=prompt,
+                    )
+                except Exception:
+                    answer = _format_data_response(rows, view_name)
                 return answer, [view_name]
 
         return _FALLBACK, []
+
+
+def _format_data_response(df, view_name: str) -> str:
+    """Plain-text fallback when Gemini is unavailable — formats the raw rows."""
+    if df.empty:
+        return f"No data available in {view_name}."
+    lines = [f"Data from {view_name}:"]
+    for _, row in df.iterrows():
+        parts = [f"{col}: {val}" for col, val in row.items() if val is not None]
+        lines.append("  • " + " | ".join(parts))
+    return "\n".join(lines)

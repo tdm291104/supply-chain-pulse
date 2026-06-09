@@ -35,10 +35,53 @@ def reset_to_perfect_storm(*, db: Database, data_dir: str, log_path: str = "logs
         open(log_path, "w").close()
 
 
+DEMO_ALERT_ID = "alert_demo_001"
+
+DEMO_ALERT_DESCRIPTION = (
+    "Critical multi-signal risk: SKU-C01 (Raw cotton fabric) has only 9 days of "
+    "stock at current consumption rate. Primary supplier SUP-001 is averaging "
+    "4.2-day delays with a 58% on-time rate. A hurricane forecast threatens the "
+    "Gulf Coast shipping corridor — the only active route. Simultaneous inventory "
+    "depletion, supplier unreliability, and weather disruption create a "
+    "high-probability stockout within the lead time window."
+)
+
+DEMO_ALERT_ACTION = (
+    "Switch to backup supplier (Vertex Fabrics) and create a new Fivetran "
+    "connection to monitor their inventory feed"
+)
+
+
+def seed_demo_alert(*, db: Database) -> None:
+    """Insert a pre-written HIGH-severity alert for demo recording.
+
+    Called when a live Gemini API call is not available (e.g. quota exhausted).
+    The alert content matches what Gemini would generate for the perfect-storm
+    scenario.
+    """
+    db.execute(f"""
+        INSERT INTO risk_alerts
+            (alert_id, created_at, severity, affected_skus, risk_type,
+             description, recommended_action, status, resolved_at, approved_by)
+        VALUES (
+            '{DEMO_ALERT_ID}', current_timestamp, 'HIGH',
+            ['SKU-C01'],
+            'inventory,supplier_delay,weather',
+            '{DEMO_ALERT_DESCRIPTION.replace("'", "''")}',
+            '{DEMO_ALERT_ACTION.replace("'", "''")}',
+            'OPEN', NULL, NULL
+        )
+    """)
+
+
 if __name__ == "__main__":
+    import sys
     db_path = os.environ.get("DUCKDB_PATH", "./data/supply_chain.duckdb")
     data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
     database = Database(db_path)
     reset_to_perfect_storm(db=database, data_dir=data_dir)
+    if "--seed-alert" in sys.argv:
+        seed_demo_alert(db=database)
+        print("Demo alert seeded.")
     database.close()
     print(WEBHOOK_HINT)

@@ -6,3 +6,4 @@ data/*.duckdb
 logs/*.jsonl
 .pytest_cache/
 .venv/
+demo/demo_recording.mp4
