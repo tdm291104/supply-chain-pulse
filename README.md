@@ -61,13 +61,12 @@ selected by the `USE_MOCK_MCP` env var:
   mock backend driven by JSON fixtures in `data/`. This is what the demo runs
   on: it's deterministic, requires no live credentials, and reproduces the
   "perfect storm" scenario exactly every time.
-- **`USE_MOCK_MCP=false`** — intended to route through a real `fivetran-mcp`
-  server via the `mcp` SDK. That server isn't part of this repo and has no
-  documented connection endpoint yet, so this path currently raises
-  `NotImplementedError` with a message pointing back at the mock flag. Wiring
-  up a real MCP server is future work, not required for the demo — the agent
-  code is already written to call the client identically either way, so only
-  this module would need to change.
+- **`USE_MOCK_MCP=false`** — connects to the official
+  [`fivetran/fivetran-mcp`](https://github.com/fivetran/fivetran-mcp) server
+  via stdio JSON-RPC subprocess (auto-installed via `uvx`). Requires
+  `FIVETRAN_API_KEY` and `FIVETRAN_API_SECRET` in the environment. All 10
+  tools call the live Fivetran REST API; results are identical in shape to the
+  mock so the rest of the codebase is unchanged.
 
 ## Quick start (< 10 minutes)
 
