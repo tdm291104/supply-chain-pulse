@@ -2,6 +2,14 @@
 
 AI agent that monitors supply chain risk in real time — powered by Gemini and the Fivetran MCP server.
 
+## Screenshots
+
+| Alerts — real-time risk with KPI banner | Pipeline — live Fivetran connections |
+|---|---|
+| ![Alerts tab](docs/screenshots/alerts.png) | ![Pipeline tab](docs/screenshots/pipeline.png) |
+
+![Approve action with live tool call log](docs/screenshots/tool_log.png)
+
 ## The problem
 
 $1.5 trillion is lost globally every year to supply chain disruptions (McKinsey, 2023).
